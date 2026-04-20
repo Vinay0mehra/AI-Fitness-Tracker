@@ -16,7 +16,7 @@ export async function logActivity(formData: FormData) {
   const caloriesBurned = parseInt(formData.get("calories") as string);
 
   if (!activityName || isNaN(duration) || isNaN(caloriesBurned)) {
-    return { error: "Invalid input" };
+    throw new Error("Invalid input");
   }
 
   const { error } = await supabase.from("activity_logs").insert({
@@ -27,7 +27,7 @@ export async function logActivity(formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    throw new Error(error.message);
   }
 
   revalidatePath("/activity");
