@@ -16,7 +16,14 @@ export default function ScanPage() {
   const supabase = createClient();
   const [isScanning, setIsScanning] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<any>({
+    food_name: "",
+    calories: "",
+    protein_g: "",
+    carbs_g: "",
+    fat_g: "",
+    confidence_score: null
+  });
   const [error, setError] = useState<string | null>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,22 +88,32 @@ export default function ScanPage() {
 
   const saveFoodLog = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!result) return;
+    if (!result || !result.food_name || !result.calories) {
+      setError("Please provide at least a food name and calories.");
+      return;
+    }
     
     setIsScanning(true);
     const { data: { user } } = await supabase.auth.getUser();
     
     if (user) {
-      await supabase.from("food_logs").insert({
+      const { error: insertError } = await supabase.from("food_logs").insert({
         user_id: user.id,
         food_name: result.food_name,
-        calories: result.calories,
-        protein_g: result.protein_g,
-        carbs_g: result.carbs_g,
-        fat_g: result.fat_g,
+        calories: Number(result.calories),
+        protein_g: result.protein_g ? Number(result.protein_g) : 0,
+        carbs_g: result.carbs_g ? Number(result.carbs_g) : 0,
+        fat_g: result.fat_g ? Number(result.fat_g) : 0,
         confidence_score: result.confidence_score,
-        image_url: null, // Skipping complicated bucket storage for local dev
+        image_url: null,
       });
+      
+      if (insertError) {
+        console.error("Supabase insert error:", insertError);
+        setError("Database Error: " + insertError.message);
+        setIsScanning(false);
+        return;
+      }
     }
     
     setIsScanning(false);
@@ -107,8 +124,8 @@ export default function ScanPage() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">AI Food Scanner</h1>
-        <p className="text-muted-foreground mt-2">Let Gemini calculate your macros for you.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Log Food</h1>
+        <p className="text-muted-foreground mt-2">Let AI calculate your macros, or enter them manually.</p>
       </header>
 
       <div className="grid gap-8 md:grid-cols-2">
@@ -154,16 +171,16 @@ export default function ScanPage() {
         </section>
 
         <section>
-          <Card className={!result ? 'opacity-50 pointer-events-none filter grayscale transition-all' : 'transition-all'}>
+          <Card className="transition-all">
             <CardHeader>
               <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Scan Results
+                {imagePreview ? "Scan Results" : "Log Details"}
               </CardTitle>
-              <CardDescription>Review and modify the AI estimates.</CardDescription>
+              <CardDescription>{imagePreview ? "Review and modify the AI estimates." : "Manually enter your food details."}</CardDescription>
             </CardHeader>
             <form onSubmit={saveFoodLog}>
               <CardContent className="space-y-4">
-                {result && (
+                {result?.confidence_score && (
                   <div className="mb-6 p-4 rounded-lg bg-muted flex items-center justify-between">
                     <span className="text-sm font-medium text-muted-foreground">AI Confidence</span>
                     <div className="flex items-center gap-2">
@@ -228,8 +245,12 @@ export default function ScanPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex gap-2">
-                <Button type="button" variant="outline" className="w-full" onClick={() => {setResult(null); setImagePreview(null);}}>
-                  Discard
+                <Button type="button" variant="outline" className="w-full" onClick={() => {
+                  setResult({ food_name: "", calories: "", protein_g: "", carbs_g: "", fat_g: "", confidence_score: null }); 
+                  setImagePreview(null);
+                  setError(null);
+                }}>
+                  Clear
                 </Button>
                 <Button type="submit" className="w-full">
                   <CheckCircle2 className="w-4 h-4 mr-2" />

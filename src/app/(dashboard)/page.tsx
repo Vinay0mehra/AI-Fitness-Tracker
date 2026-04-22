@@ -1,5 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { DashboardCharts } from "@/components/dashboard-charts";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Utensils } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -89,6 +91,45 @@ export default async function DashboardPage() {
         burnedCalories={burnedCalories}
         macroSplit={macroSplit}
       />
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Today's Meals</h2>
+        {foodLogs && foodLogs.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {foodLogs.map((log) => (
+              <Card key={log.id} className="bg-card/50 backdrop-blur-md border-white/10 hover:bg-card/80 transition-colors">
+                <CardHeader className="pb-2 flex flex-row items-center gap-4">
+                  <div className="p-2 rounded-full bg-primary/10 text-primary">
+                    <Utensils className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">{log.food_name}</CardTitle>
+                    <CardDescription>
+                      {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-primary mb-2">{log.calories} <span className="text-sm font-normal text-muted-foreground">kcal</span></div>
+                  <div className="flex gap-4 text-sm text-muted-foreground">
+                    {log.protein_g > 0 && <span>P: {log.protein_g}g</span>}
+                    {log.carbs_g > 0 && <span>C: {log.carbs_g}g</span>}
+                    {log.fat_g > 0 && <span>F: {log.fat_g}g</span>}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="bg-card/30 border-dashed border-2">
+            <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+              <Utensils className="w-12 h-12 text-muted-foreground/50 mb-4" />
+              <p className="text-lg font-medium text-muted-foreground">No meals logged today.</p>
+              <p className="text-sm text-muted-foreground mt-1">Head over to the Log Food page to add your meals.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

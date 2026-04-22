@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Camera, Activity, User, LogOut } from "lucide-react";
+import { Home, Camera, Activity, User, LogOut, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: Home },
-  { name: "Scan Food", href: "/scan", icon: Camera },
+  { name: "Log Food", href: "/scan", icon: Utensils },
   { name: "Activity", href: "/activity", icon: Activity },
   { name: "Profile", href: "/profile", icon: User },
 ];

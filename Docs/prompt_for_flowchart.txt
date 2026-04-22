@@ -1,0 +1,30 @@
+Please generate a detailed functionality flowchart diagram for an AI Fitness Tracker web application. You can output the flowchart using Mermaid.js syntax.
+
+Here is the context and the core flows of the application:
+
+1. User Authentication: 
+- Users can sign up or log in. 
+- The system uses Supabase Auth. Upon sign-up, a user record is created and a database trigger initializes their profile.
+
+2. User Onboarding: 
+- After the first login, new users must provide their details (age, weight, height, gender, and fitness goals like weight loss, maintenance, or muscle gain). 
+- The system calculates their Basal Metabolic Rate (BMR) using the Harris-Benedict equation and sets their daily calorie targets.
+
+3. Main Dashboard: 
+- A central hub showing the user's daily progress. 
+- It displays daily calorie targets versus actual calories consumed and calories burned.
+- Includes data visualization charts to track progress over time.
+
+4. AI Food Logging: 
+- Users can upload a photo of their meal. 
+- The application sends the image to the Google Gemini AI API, which analyzes the food item and estimates the calorie intake. 
+- The estimated calories are then saved to the user's daily consumption log.
+
+5. Manual Activity Logging: 
+- Users can manually log their physical activities and workouts by entering the exercise type, duration, and calories burned.
+
+Requirements for the flowchart:
+- Please create a comprehensive flowchart that maps out how a user interacts with the system, starting from Authentication.
+- Show the conditional path for Onboarding (if it's a new user vs returning user).
+- Show the Dashboard as the central node where users can branch out to AI Food Logging or Activity Logging.
+- Include backend/system processes like Supabase profile initialization and Gemini AI image analysis where appropriate.
